@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import React from "react";
+import * as React from "react";
 import DataTable, {createTheme} from 'react-data-table-component';
 
 import {
@@ -37,6 +37,10 @@ import {
     precisionRound
 } from "../utils";
 import {QueryHeader} from "./QueryHeader";
+import type {
+    Task,
+    HostToPortNumber,
+} from "./CommonTypes.jsx";
 
 createTheme('dark', {
     background: {
@@ -44,8 +48,8 @@ createTheme('dark', {
     },
   });
 
-function TaskList({tasks}) {
-    function removeQueryId(id) {
+function TaskList({tasks}: { tasks: Task[] }): React.Node {
+    function removeQueryId(id: string) {
         const pos = id.indexOf('.');
         if (pos !== -1) {
             return id.substring(pos + 1);
@@ -53,7 +57,7 @@ function TaskList({tasks}) {
         return id;
     }
 
-    function compareTaskId(taskA, taskB) {
+    function compareTaskId(taskA: Task, taskB: Task) {
         const taskIdArrA = removeQueryId(taskA.taskId).split(".");
         const taskIdArrB = removeQueryId(taskB.taskId).split(".");
 
@@ -71,9 +75,9 @@ function TaskList({tasks}) {
         return 0;
     }
 
-    function showPortNumbers(items) {
+    function showPortNumbers(items: Task[]) {
         // check if any host has multiple port numbers
-        const hostToPortNumber = {};
+        const hostToPortNumber: HostToPortNumber = {};
         for (let i = 0; i < items.length; i++) {
             const taskUri = items[i].taskStatus.self;
             const hostname = getHostname(taskUri);
@@ -87,7 +91,7 @@ function TaskList({tasks}) {
         return false;
     }
 
-    function formatState(state, fullyBlocked) {
+    function formatState(state: string, fullyBlocked: boolean) {
         if (fullyBlocked && state === "RUNNING") {
             return "BLOCKED";
         }
@@ -106,8 +110,8 @@ function TaskList({tasks}) {
 
     const showingPortNumbers = showPortNumbers(tasks);
 
-    function calculateElapsedTime(row) {
-        let elapsedTime = parseDuration(row.stats.elapsedTimeInNanos + "ns");
+    function calculateElapsedTime(row: Task): number {
+        let elapsedTime = parseDuration(row.stats.elapsedTimeInNanos + "ns") || 0;
         if (elapsedTime === 0) {
             elapsedTime = Date.now() - Date.parse(row.stats.createTime);
         }
@@ -131,17 +135,17 @@ function TaskList({tasks}) {
     const columns = [
         {
             name: 'ID',
-            selector: row => row.taskId,
+            selector: (row: Task) => row.taskId,
             sortFunction: compareTaskId,
-            cell: row => (<a href={"/v1/taskInfo/" + row.taskId + "?pretty"}>
+            cell: (row: Task) => (<a href={"/v1/taskInfo/" + row.taskId + "?pretty"}>
                             {getTaskIdSuffix(row.taskId)}
                             </a>),
             minWidth: '60px',
         },
         {
             name: 'Host',
-            selector: row => getHostname(row.taskStatus.self),
-            cell: row => (<a href={"worker.html?" + row.nodeId} className="font-light nowrap" target="_blank">
+            selector: (row: Task) => getHostname(row.taskStatus.self),
+            cell: (row: Task) => (<a href={"worker.html?" + row.nodeId} className="font-light nowrap" target="_blank">
                             {showingPortNumbers ? getHostAndPort(row.taskStatus.self) :  getHostname(row.taskStatus.self)}
                             </a>),
             sortable: true,
@@ -151,7 +155,7 @@ function TaskList({tasks}) {
         },
         {
             name: 'State',
-            selector: row => formatState(row.taskStatus.state, row.stats.fullyBlocked),
+            selector: (row: Task) => formatState(row.taskStatus.state, row.stats.fullyBlocked),
             sortable: true,
             minWidth: '80px',
         },
@@ -159,7 +163,7 @@ function TaskList({tasks}) {
             name: (<span className="glyphicon glyphicon-pause" style={GLYPHICON_HIGHLIGHT}
                 data-toggle="tooltip" data-placement="top"
                 title="Pending splits"/>),
-            selector: row => row.stats.queuedDrivers,
+            selector: (row: Task) => row.stats.queuedDrivers,
             sortable: true,
             maxWidth: '50px',
             minWidth: '40px',
@@ -168,7 +172,7 @@ function TaskList({tasks}) {
             name: (<span className="glyphicon glyphicon-play" style={GLYPHICON_HIGHLIGHT}
                 data-toggle="tooltip" data-placement="top"
                 title="Running splits"/>),
-            selector: row => row.stats.runningDrivers,
+            selector: (row: Task) => row.stats.runningDrivers,
             sortable: true,
             maxWidth: '50px',
             minWidth: '40px',
@@ -178,7 +182,7 @@ function TaskList({tasks}) {
                 style={GLYPHICON_HIGHLIGHT} data-toggle="tooltip"
                 data-placement="top"
                 title="Blocked splits"/>),
-            selector: row => row.stats.blockedDrivers,
+            selector: (row: Task) => row.stats.blockedDrivers,
             sortable: true,
             maxWidth: '50px',
             minWidth: '40px',
@@ -187,57 +191,57 @@ function TaskList({tasks}) {
             name: (<span className="glyphicon glyphicon-ok" style={GLYPHICON_HIGHLIGHT}
                 data-toggle="tooltip" data-placement="top"
                 title="Completed splits"/>),
-            selector: row => row.stats.completedDrivers,
+            selector: (row: Task) => row.stats.completedDrivers,
             sortable: true,
             maxWidth: '50px',
             minWidth: '40px',
         },
         {
             name: 'Rows',
-            selector: row => row.stats.rawInputPositions,
-            cell: row => formatCount(row.stats.rawInputPositions),
+            selector: (row: Task) => row.stats.rawInputPositions,
+            cell: (row: Task) => formatCount(row.stats.rawInputPositions),
             sortable: true,
             minWidth: '75px',
         },
         {
             name: 'Rows/s',
-            selector: row => computeRate(row.stats.rawInputPositions, calculateElapsedTime(row)),
-            cell: row => formatCount(computeRate(row.stats.rawInputPositions, calculateElapsedTime(row))),
+            selector: (row: Task) => computeRate(row.stats.rawInputPositions, calculateElapsedTime(row)),
+            cell: (row: Task) => formatCount(computeRate(row.stats.rawInputPositions, calculateElapsedTime(row))),
             sortable: true,
             minWidth: '75px',
         },
         {
             name: 'Bytes',
-            selector: row => row.stats.rawInputDataSizeInBytes,
-            cell: row => formatDataSizeBytes(row.stats.rawInputDataSizeInBytes),
+            selector: (row: Task) => row.stats.rawInputDataSizeInBytes,
+            cell: (row: Task) => formatDataSizeBytes(row.stats.rawInputDataSizeInBytes),
             sortable: true,
             minWidth: '75px',
         },
         {
             name: 'Bytes/s',
-            selector: row => computeRate(row.stats.rawInputDataSizeInBytes, calculateElapsedTime(row)),
-            cell: row => formatDataSizeBytes(computeRate(row.stats.rawInputDataSizeInBytes, calculateElapsedTime(row))),
+            selector: (row: Task) => computeRate(row.stats.rawInputDataSizeInBytes, calculateElapsedTime(row)),
+            cell: (row: Task) => formatDataSizeBytes(computeRate(row.stats.rawInputDataSizeInBytes, calculateElapsedTime(row))),
             sortable: true,
             minWidth: '75px',
         },
         {
             name: 'Elapsed',
-            selector: row => parseDuration(row.stats.elapsedTimeInNanos + "ns"),
-            cell: row => formatDuration(parseDuration(row.stats.elapsedTimeInNanos + "ns")),
+            selector: (row: Task) => parseDuration(row.stats.elapsedTimeInNanos + "ns"),
+            cell: (row: Task) => formatDuration(parseDuration(row.stats.elapsedTimeInNanos + "ns") || 0),
             sortable: true,
             minWidth: '75px',
         },
         {
             name: 'CPU Time',
-            selector: row => parseDuration(row.stats.totalCpuTimeInNanos + "ns"),
-            cell: row => formatDuration(parseDuration(row.stats.totalCpuTimeInNanos + "ns")),
+            selector: (row: Task) => parseDuration(row.stats.totalCpuTimeInNanos + "ns"),
+            cell: (row: Task) => formatDuration(parseDuration(row.stats.totalCpuTimeInNanos + "ns") || 0),
             sortable: true,
             minWidth: '75px',
         },
         {
             name: 'Buffered',
-            selector: row => row.outputBuffers.totalBufferedBytes,
-            cell: row => formatDataSizeBytes(row.outputBuffers.totalBufferedBytes),
+            selector: (row: Task) => row.outputBuffers.totalBufferedBytes,
+            cell: (row: Task) => formatDataSizeBytes(row.outputBuffers.totalBufferedBytes),
             sortable: true,
             minWidth: '75px',
         },
@@ -808,19 +812,19 @@ const TASK_FILTER = {
     },
     PLANNED: {
         text: "Planned",
-        predicate: function (state) { return state === 'PLANNED' }
+        predicate: function (state: string) { return state === 'PLANNED' }
     },
     RUNNING: {
         text: "Running",
-        predicate: function (state) { return state === 'RUNNING' }
+        predicate: function (state: string) { return state === 'RUNNING' }
     },
     FINISHED: {
         text: "Finished",
-        predicate: function (state) { return state === 'FINISHED' }
+        predicate: function (state: string) { return state === 'FINISHED' }
     },
     FAILED: {
         text: "Aborted/Canceled/Failed",
-        predicate: function (state) { return state === 'FAILED' || state === 'ABORTED' || state === 'CANCELED' }
+        predicate: function (state: string) { return state === 'FAILED' || state === 'ABORTED' || state === 'CANCELED' }
     },
 };
 

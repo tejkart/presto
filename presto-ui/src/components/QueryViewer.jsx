@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import React from 'react';
+import * as React from 'react';
 
 import PlanView from './QueryPlanView';
 import QueryOverview from './QueryOverview';
@@ -20,8 +20,19 @@ import SplitView from './QuerySplitsView';
 import StageView from './QueryStageView';
 import StaticQueryHeader from './StaticQueryHeader';
 
+type FileFormProps = {
+    onChange: (SyntheticInputEvent<HTMLInputElement>) => void,
+};
+
+type State = {
+    initialized: boolean,
+    ended: boolean | null,
+    tab: string,
+    query: ?Object,
+};
+
 // A form to select a JSON file and read
-const FileForm = ({ onChange }) => (
+const FileForm = ({ onChange }: FileFormProps) => (
     <div className="row">
         <div className="col-xs-4 col-xs-offset-1 input-group">
             <div id="title">Select a JSON file of SQL query to process</div>
@@ -34,7 +45,7 @@ const FileForm = ({ onChange }) => (
     </div>
 );
 
-export function QueryViewer() {
+export function QueryViewer(): React.Node {
     const [state, setState] = React.useState({
         initialized: false,
         ended: false,
@@ -49,11 +60,11 @@ export function QueryViewer() {
         {name: 'splits', label: 'Splits'},
     ];
 
-    const switchTab = (tab) => {
+    const switchTab = (tab: {name: string}) => {
         setState({...state, tab: tab.name});
     };
 
-    const readJSON = (e) => {
+    const readJSON = (e: SyntheticInputEvent<HTMLInputElement>) => {
         if (!e.target.files[0]) {
             return;
         }
@@ -71,7 +82,7 @@ export function QueryViewer() {
                     query: queryJSON,
                 });
             } catch (err) {
-                console.err(err);
+                console.error(err);
             }
         }
         fr.readAsText(e.target.files[0]);

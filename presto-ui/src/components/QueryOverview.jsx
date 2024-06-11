@@ -17,6 +17,16 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { clsx } from 'clsx';
 import DataTable, { createTheme } from 'react-data-table-component';
+import type {
+    Task,
+    RuntimeStats,
+    OutputStage,
+    StageExecutionInfo,
+    FailureInfo,
+    QueryData,
+    TaskFilter,
+    HostToPortNumber
+} from "./CommonTypes.jsx";
 
 import {
     computeRate,
@@ -42,174 +52,6 @@ createTheme('dark', {
         default: 'transparent',
     },
 });
-
-type TaskStatus = {
-    self: string;
-    state: string;
-}
-
-type TaskStats = {
-    createTime: string;
-    elapsedTimeInNanos: number;
-    totalCpuTimeInNanos: number;
-    fullyBlocked: boolean;
-    queuedDrivers: number;
-    runningDrivers: number;
-    blockedDrivers: number;
-    totalDrivers: number;
-    completedDrivers: number;
-    rawInputPositions: number;
-    rawInputDataSizeInBytes: number;
-    totalScheduledTimeInNanos: number;
-}
-
-type TaskOutputBuffers = {
-    type: string;
-    state: string;
-    totalBufferedBytes: number;
-}
-
-type Task = {
-    taskId: string;
-    taskStatus: TaskStatus;
-    stats: TaskStats;
-    nodeId: string;
-    outputBuffers: TaskOutputBuffers;
-}
-
-type RuntimeStat = {
-    name: string;
-    unit: string;
-    sum: number;
-    count: number;
-    max: number;
-    min: number;
-}
-
-type RuntimeStats = {
-    [key: string]: RuntimeStat;
-}
-
-type OutputStage = {
-    stageId: string;
-    self: string;
-    plan?: mixed;
-    latestAttemptExecutionInfo: StageExecutionInfo;
-    previousAttemptsExecutionInfos: StageExecutionInfo[];
-    subStages: OutputStage[];
-    isRuntimeOptimized: boolean;
-}
-
-type StageExecutionInfo = {
-    state: string;
-    stats: QueryStats;
-    tasks: Task[];
-    failureCause?: string;
-}
-
-type QueryStats = {
-    totalScheduledTime: string;
-    totalBlockedTime: string;
-    totalCpuTime: string;
-    cumulativeUserMemory: number;
-    cumulativeTotalMemory: number;
-    userMemoryReservation: string;
-    peakUserMemoryReservation: string;
-    runtimeStats: RuntimeStats;
-    elapsedTime: string;
-    createTime: string;
-    endTime: string;
-    waitingForPrerequisitesTime: string;
-    queuedTime: string;
-    totalPlanningTime: string;
-    executionTime: string;
-    processedInputPositions: number;
-    processedInputDataSize: string;
-    rawInputPositions: number;
-    rawInputDataSize: string;
-    shuffledPositions: number;
-    shuffledDataSize: string;
-    peakTotalMemoryReservation: string;
-    outputPositions: number;
-    outputDataSize: string;
-    writtenOutputPositions: number;
-    writtenOutputLogicalDataSize: string;
-    writtenOutputPhysicalDataSize: string;
-    spilledDataSize: string;
-}
-
-type FailureInfo = {
-    type: string;
-    message: string;
-    cause?: FailureInfo;
-    suppressed: FailureInfo[];
-    stack: string[];
-    errorCode?: string;
-    errorCause?: string;
-}
-
-type ResourceEstimates = {
-    executionTime?: string;
-    cpuTime?: string;
-    peakMemory?: string;
-    peakTaskMemory?: string;
-}
-
-type SessionRepresentation = {
-    systemProperties: { [key: string]: string };
-    catalogProperties: { [key: string]: { [key: string]: string } };
-    resourceEstimates: ResourceEstimates;
-    user: string;
-    principal?: string;
-    source?: string;
-    catalog?: string;
-    schema?: string;
-    traceToken?: string;
-    timeZoneKey: number;
-    locale: string;
-    remoteUserAddress?: string;
-    userAgent?: string;
-    clientInfo?: string;
-    clientTags: string[];
-    startTime: number;
-}
-
-type PrestoWarning = {
-    warningCode: { code: string, name: string };
-    message: string;
-}
-
-type ErrorCode = {
-    code: number;
-    name: string;
-    type: string;
-    retriable: boolean;
-}
-
-type QueryData = {
-    outputStage: OutputStage;
-    queryId: string;
-    session: SessionRepresentation;
-    preparedQuery?: string;
-    warnings: PrestoWarning[];
-    queryStats: QueryStats;
-    failureInfo: FailureInfo;
-    errorType: string;
-    errorCode: ErrorCode;
-    resourceGroupId?: string[];
-    self: string;
-    memoryPool: string;
-    query: string;
-}
-
-type TaskFilter = {
-    text: string;
-    predicate: (string) => boolean;
-}
-
-type HostToPortNumber = {
-    [key: string]: string;
-}
 
 function TaskList({ tasks }: { tasks: Task[] }) : React.Node {
     function removeQueryId(id: string) {

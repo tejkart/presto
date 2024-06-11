@@ -22,7 +22,7 @@ import * as dagreD3 from "dagre-d3";
 import * as d3 from "d3";
 import { formatRows, getStageStateColor, initializeGraph } from "../utils";
 
-export default function PlanView({show, data}) {
+export default function PlanView({show, data}: {show: boolean, data: any}) {
     const widgets = React.useRef({
         svg: null,
     });

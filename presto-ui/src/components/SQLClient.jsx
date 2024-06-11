@@ -12,13 +12,14 @@
  * limitations under the License.
  */
 
-import React from 'react';
+import * as React from 'react';
 import { clsx } from 'clsx';
 import { createTheme } from 'react-data-table-component';
 import { PrestoQuery } from '@prestodb/presto-js-client'
 import { QueryResults } from './QueryResults.jsx';
 import { SessionProps } from './SessionProps.jsx';
 import { SQLInput, createClient } from './SQLInput.jsx';
+import type { SessionRepresentation } from './CommonTypes.jsx';
 
 createTheme('dark', {
     background: {
@@ -30,12 +31,12 @@ type SessionValues = {
     [key: string]: string;
 };
 
-export default function SQLClientView() {
+export default function SQLClientView(): React.Node {
     const [values, setValues] = React.useState({sql: '', running: false, results: undefined, view: 'SQL'});
     const sessions: SessionValues = React.useRef({});
     const views = [{name: 'SQL', label: 'SQL'}, {name: 'Session', label: 'Session Properties'}];
 
-    const executeSQL = (sqlInfo) => {
+    const executeSQL = (sqlInfo: SessionRepresentation) => {
         const client = createClient(
             sqlInfo.catalog,
             sqlInfo.schema,

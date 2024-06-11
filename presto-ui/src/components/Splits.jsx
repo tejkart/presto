@@ -12,21 +12,22 @@
  * limitations under the License.
  */
 
+import * as React from 'react';
 import { Timeline, DataSet } from "vis-timeline/standalone";
 import { useRef, useEffect, useState } from 'react';
 import { getFirstParameter } from "../utils";
 import { QueryHeader } from "./QueryHeader";
+import type { QueryData, OutputStage } from "./CommonTypes.jsx"
 
-
-export default function Split(): void {
+export default function Split(): React.Node {
 
     const containerRef = useRef(null);
     const timelineRef = useRef(null);
     const timerid = useRef(0);
     const [queryState, setQueryState] = useState({query: null, failed: false, ended: false});
 
-    function calculateItemsGroups(query) {
-        const getTasks = (stage) => {
+    function calculateItemsGroups(query: QueryData) {
+        const getTasks = (stage: OutputStage): any => {
             return [].concat.apply(
                     stage.latestAttemptExecutionInfo.tasks,
                     stage.subStages.map(getTasks));

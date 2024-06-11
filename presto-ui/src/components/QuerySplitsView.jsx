@@ -12,20 +12,22 @@
  * limitations under the License.
  */
 
+import * as React from 'react';
 import { clsx } from 'clsx';
 import { Timeline, DataSet } from "vis-timeline/standalone";
 import { useRef, useEffect } from 'react';
+import type { OutputStage, QueryData } from "./CommonTypes.jsx";
 
-export default function SplitView({ data, show }): void {
+export default function SplitView({ data, show }: {data: QueryData, show: boolean}): React.Node {
 
     const containerRef = useRef(null);
     const timelineRef = useRef(null);
 
     function calculateItemsGroups() {
-        const getTasks = (stage) => {
-            return [].concat.apply(
-                stage.latestAttemptExecutionInfo.tasks,
-                stage.subStages.map(getTasks));
+        const getTasks = (stage: OutputStage): any => {
+            return stage.latestAttemptExecutionInfo.tasks.concat(
+                ...stage.subStages.map(getTasks)
+            );
         }
         let tasks = getTasks(data.outputStage);
         tasks = tasks.map((task) => {

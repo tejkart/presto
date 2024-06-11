@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import React from 'react';
+import * as React from 'react';
 
 import {
     getHumanReadableState,
@@ -22,7 +22,7 @@ import {
     isQueryEnded
 } from '../utils';
 
-function QueryHeaderTabs({ tabs, current, clickHandler }) {
+function QueryHeaderTabs({ tabs, current, clickHandler }: {tabs: any, current: any, clickHandler: any}) {
     return (
         <>
             {tabs.map((tab, index) => (
@@ -43,11 +43,11 @@ function QueryHeaderTabs({ tabs, current, clickHandler }) {
     );
 }
 
-export default function StaticQueryHeader({ query, tabs, switchTab, tabIndex = 0 }) {
+export default function StaticQueryHeader({ query, tabs, switchTab, tabIndex = 0 }: {query: any, tabs: any, switchTab: any, tabIndex: number}): React.Node {
 
     const [state, setState] = React.useState({ tab: tabs?.[tabIndex] });
 
-    const clickHandler = (tab) => {
+    const clickHandler = (tab: any) => {
         setState({ tab: tab });
         switchTab(tab);
     };

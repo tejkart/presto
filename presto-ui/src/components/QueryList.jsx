@@ -29,7 +29,30 @@ import {
     truncateString
 } from "../utils";
 
-function getHumanReadableStateFromInfo(query) {
+import type { ErrorCode } from "./CommonTypes.jsx";
+
+
+type Progress = {
+    queuedDrivers: number,
+    runningDrivers: number,
+    completedDrivers: number,
+    blocked: boolean,
+    blockedReasons: any,
+    elapsedTimeMillis: number,
+    executionTimeMillis: number,
+    cpuTimeMillis: number,
+    cumulativeUserMemory: number,
+    currentMemoryBytes: number,
+}
+
+type Query = {
+    progress: Progress,
+    queryState: string,
+    errorCode: ErrorCode,
+    createTime: string,
+}
+
+function getHumanReadableStateFromInfo(query: Query) {
     const progress = query.progress;
     return getHumanReadableState(
         query.queryState,
@@ -43,7 +66,7 @@ function getHumanReadableStateFromInfo(query) {
 }
 
 
-function ResourceGroupLinks({groupId, length=35}) {
+function ResourceGroupLinks({groupId, length=35}: {groupId: any, length: number}) {
     if (!groupId?.length) return ('n/a');
 
     let previousLen = 0;
@@ -285,32 +308,32 @@ class DisplayedQueriesList extends React.Component {
 }
 
 const FILTER_TYPE = {
-    RUNNING: function (query) {
+    RUNNING: function (query: Query) {
         return !(query.queryState === "QUEUED" || query.queryState === "FINISHED" || query.queryState === "FAILED");
     },
-    QUEUED: function (query) { return query.queryState === "QUEUED"},
-    FINISHED: function (query) { return query.queryState === "FINISHED"},
+    QUEUED: function (query: Query) { return query.queryState === "QUEUED"},
+    FINISHED: function (query: Query) { return query.queryState === "FINISHED"},
 };
 
 const SORT_TYPE = {
-    CREATED: function (query) {return Date.parse(query.createTime);},
-    ELAPSED: function (query) {return query.progress.elapsedTimeMillis;},
-    EXECUTION: function (query) {return query.progress.executionTimeMillis;},
-    CPU: function (query) {return query.progress.cpuTimeMillis;},
-    CUMULATIVE_MEMORY: function (query) {return query.progress.cumulativeUserMemory;},
-    CURRENT_MEMORY: function (query) {return query.progress.currentMemoryBytes;},
+    CREATED: function (query: Query) {return Date.parse(query.createTime);},
+    ELAPSED: function (query: Query) {return query.progress.elapsedTimeMillis;},
+    EXECUTION: function (query: Query) {return query.progress.executionTimeMillis;},
+    CPU: function (query: Query) {return query.progress.cpuTimeMillis;},
+    CUMULATIVE_MEMORY: function (query: Query) {return query.progress.cumulativeUserMemory;},
+    CURRENT_MEMORY: function (query: Query) {return query.progress.currentMemoryBytes;},
 };
 
 const ERROR_TYPE = {
-    USER_ERROR: function (query) {return query.queryState === "FAILED" && query.errorCode.type === "USER_ERROR"},
-    INTERNAL_ERROR: function (query) {return query.queryState === "FAILED" && query.errorCode.type === "INTERNAL_ERROR"},
-    INSUFFICIENT_RESOURCES: function (query) {return query.queryState === "FAILED" && query.errorCode.type === "INSUFFICIENT_RESOURCES"},
-    EXTERNAL: function (query) {return query.queryState === "FAILED" && query.errorCode.type === "EXTERNAL"},
+    USER_ERROR: function (query: Query) {return query.queryState === "FAILED" && query.errorCode.type === "USER_ERROR"},
+    INTERNAL_ERROR: function (query: Query) {return query.queryState === "FAILED" && query.errorCode.type === "INTERNAL_ERROR"},
+    INSUFFICIENT_RESOURCES: function (query: Query) {return query.queryState === "FAILED" && query.errorCode.type === "INSUFFICIENT_RESOURCES"},
+    EXTERNAL: function (query: Query) {return query.queryState === "FAILED" && query.errorCode.type === "EXTERNAL"},
 };
 
 const SORT_ORDER = {
-    ASCENDING: function (value) {return value},
-    DESCENDING: function (value) {return -value}
+    ASCENDING: function (value: number) {return value},
+    DESCENDING: function (value: number) {return -value}
 };
 
 export class QueryList extends React.Component {

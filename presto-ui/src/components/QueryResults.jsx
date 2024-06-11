@@ -11,8 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+//@flow
 
-import React from 'react';
+import * as React from 'react';
 import DataTable from 'react-data-table-component';
 
 export const CUSTOM_STYLES = {
@@ -31,7 +32,7 @@ export const CUSTOM_STYLES = {
 };
 
 // Show query results in a table view
-export function QueryResults({ results }) {
+export function QueryResults({ results }: any): React.Node {
 
     const getColumns = () => {
         return results.columns.map((row, index) => {
